@@ -3,9 +3,10 @@
  *  Descrição: Neste projeto haverão dois displays onde serão exibidos os funcionários e se estes estão trabalhando, permitindo que os mesmos registrem seus inícios e finais de turno.
  *  Projeto: Bater ponto - Sistema de presença de funcionários
  *  Data: 06/05/2026
- *  Versão: 0.4
+ *  Versão: 0.7
  */
 
+ 
 #include <Arduino.h>
 #include "WiFiManager.h"
 #include "MqttManager.h"
@@ -15,17 +16,20 @@
 #include <LiquidCrystal_I2C.h>
 #include <Bounce2.h>
 #include <HTTPCLIENT.H>
+#include "LED.h"
 
 const int PINO_LED_RGB = 48;
 const int QUANTIDADE_LEDS = 1;
 const int PINO_LAMPADA = 20;
 
-const char* URL_API = "https://timeapi.io/api/v1/timezone/zone?timeZone=America%2FSao_Paulo";
+const char *URL_API = "https://timeapi.io/api/v1/timezone/zone?timeZone=America%2FSao_Paulo";
 const char TOPICO_COMANDO[] = "senai134/pedroleonel/esp32/comando";
 
 const int BotaoUP = 15;
 const int BotaoDOWN = 16;
 const int BotaoSELECT = 17;
+
+Led LEDA(20);
 
 int coordenada = 0;
 
@@ -37,8 +41,6 @@ bool PedroisTrabalhando = false;
 bool lampada = false;
 String tempoLocal;
 String tempoTraduzido;
-
-
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
@@ -83,8 +85,6 @@ void setup()
 
 void loop()
 {
-  // TODO: Quando apertar cima/baixo/select, atualizar o display e Select chamar funcao SELECT
-
   garantirWiFiConectado();
   garantirMQTTConectado();
   loopMQTT();
@@ -107,6 +107,7 @@ void loop()
   {
     FuncaoSELECT();
     AtualizarDisplay();
+    LEDA.acender(2000);
   }
 }
 
@@ -261,8 +262,8 @@ void FuncaoSELECT()
 
   String texto;
   serializeJson(doc, texto);
-  //TODO: INSERIR TOPICO Q VAI PUBLICAR
-  publicarMensagem(, texto.c_str());
+  // TODO: INSERIR TOPICO Q VAI PUBLICAR
+  publicarMensagem(TOPICO_COMANDO, texto.c_str());
 
   debugInfo("Ponto enviado:");
   debugInfo(texto);
@@ -275,41 +276,41 @@ void AtualizarLED()
   case 0:
     if (LaisisTrabalhando)
     {
-      alterarCorLedRGB(0, 200, 0);
+      alterarCorLedRGB(11, 222, 18);
     }
     else if (!LaisisTrabalhando)
     {
-      alterarCorLedRGB(222, 67, 67);
+      alterarCorLedRGB(224, 29, 29);
     }
     break;
   case 1:
     if (LeonardoisTrabalhando)
     {
-      alterarCorLedRGB(0, 200, 0);
+      alterarCorLedRGB(11, 222, 18);
     }
     else if (!LeonardoisTrabalhando)
     {
-      alterarCorLedRGB(222, 67, 67);
+      alterarCorLedRGB(224, 29, 29);
     }
     break;
   case 2:
     if (LuigiisTrabalhando)
     {
-      alterarCorLedRGB(0, 200, 0);
+      alterarCorLedRGB(11, 222, 18);
     }
     else if (!LuigiisTrabalhando)
     {
-      alterarCorLedRGB(222, 67, 67);
+      alterarCorLedRGB(224, 29, 29);
     }
     break;
   case 3:
     if (PedroisTrabalhando)
     {
-      alterarCorLedRGB(0, 200, 0);
+      alterarCorLedRGB(11, 222, 18);
     }
     else if (!PedroisTrabalhando)
     {
-      alterarCorLedRGB(222, 67, 67);
+      alterarCorLedRGB(224, 29, 29);
     }
     break;
   }
@@ -320,11 +321,11 @@ void AtualizarDisplay()
   AtualizarLED();
   lcd.setCursor(1, 0);
   lcd.print("Lais");
-  lcd.setCursor(2, 1);
+  lcd.setCursor(1, 1);
   lcd.print("Leonardo");
-  lcd.setCursor(3, 2);
+  lcd.setCursor(1, 2);
   lcd.print("Luigi");
-  lcd.setCursor(4, 3);
+  lcd.setCursor(1, 3);
   lcd.print("Pedro");
 
   switch (coordenada)
@@ -370,6 +371,14 @@ void AtualizarDisplay()
     lcd.print(">");
     break;
   default:
+    lcd.setCursor(0, 0);
+    lcd.print(">");
+    lcd.setCursor(0, 1);
+    lcd.print(" ");
+    lcd.setCursor(0, 2);
+    lcd.print(" ");
+    lcd.setCursor(0, 3);
+    lcd.print(" ");
     coordenada = 0;
     break;
   }
@@ -402,9 +411,9 @@ String coletarHora()
     if (httpCode == HTTP_CODE_OK)
     {
       String resposta = http.getString();
-      //USAR SE DER ERRO NA API
-     // Serial.println("resposta bruta da API: ");
-     // Serial.print(resposta);
+      // USAR SE DER ERRO NA API
+      // Serial.println("resposta bruta da API: ");
+      // Serial.print(resposta);
       JsonDocument doc;
       DeserializationError erro = deserializeJson(doc, resposta);
 
@@ -415,7 +424,7 @@ String coletarHora()
           tempoLocal = doc["local_time"].as<String>();
 
           tempoTraduzido = tempoLocal.substring(11, 16);
-          
+
           return tempoTraduzido;
         }
       }
