@@ -86,6 +86,8 @@ void setup()
   lcd.init();
   lcd.backlight();
 
+  pinMode(20, OUTPUT);
+
   DOWN.attach(BotaoDOWN, INPUT_PULLUP);
   UP.attach(BotaoUP, INPUT_PULLUP);
   SELECT.attach(BotaoSELECT, INPUT_PULLUP);
@@ -97,10 +99,14 @@ void setup()
   registrarCallBackMensagem(tratarMensagemRecebida);
   conectarMQTT();
   AtualizarDisplay();
+
+  
 }
 
 void loop()
 {
+  LEDA.update();
+
   garantirWiFiConectado();
   garantirMQTTConectado();
   loopMQTT();
@@ -123,7 +129,7 @@ void loop()
   {
     FuncaoSELECT();
     AtualizarDisplay();
-    LEDA.acender(2000);
+    LEDA.piscar(0.5, 1);
   }
 }
 
