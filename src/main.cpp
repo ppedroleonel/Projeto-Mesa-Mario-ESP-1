@@ -17,6 +17,7 @@
 #include <Bounce2.h>
 #include <HTTPCLIENT.H>
 #include "LED.h"
+#include "secrets.h"
 
 // * PINOS
 
@@ -31,7 +32,6 @@ const int BotaoSELECT = 17;
 //* TOPICO
 
 // TODO: COLOCAR A URL_API* no secrets
-const char *URL_API = "https://timeapi.io/api/v1/timezone/zone?timeZone=America%2FSao_Paulo";
 const char TOPICO_COMANDO[] = "senai134/pedroleonel/esp32/comando";
 
 
