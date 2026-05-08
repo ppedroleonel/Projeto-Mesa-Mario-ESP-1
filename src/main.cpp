@@ -3,7 +3,7 @@
  *  Descrição: Neste projeto haverão dois displays onde serão exibidos os funcionários e se estes estão trabalhando, permitindo que os mesmos registrem seus inícios e finais de turno.
  *  Projeto: Bater ponto - Sistema de presença de funcionários
  *  Data: 06/05/2026
- *  Versão: 0.7
+ *  Versão: 0.8
  */
 
  
@@ -18,19 +18,26 @@
 #include <HTTPCLIENT.H>
 #include "LED.h"
 
+// * PINOS
+
 const int PINO_LED_RGB = 48;
 const int QUANTIDADE_LEDS = 1;
 const int PINO_LAMPADA = 20;
-
-const char *URL_API = "https://timeapi.io/api/v1/timezone/zone?timeZone=America%2FSao_Paulo";
-const char TOPICO_COMANDO[] = "senai134/pedroleonel/esp32/comando";
 
 const int BotaoUP = 15;
 const int BotaoDOWN = 16;
 const int BotaoSELECT = 17;
 
-Led LEDA(20);
+//* TOPICO
 
+// TODO: COLOCAR A URL_API* no secrets
+const char *URL_API = "https://timeapi.io/api/v1/timezone/zone?timeZone=America%2FSao_Paulo";
+const char TOPICO_COMANDO[] = "senai134/pedroleonel/esp32/comando";
+
+
+
+
+// * VARIAVEIS DO atualizarDisplay()
 int coordenada = 0;
 
 bool LaisisTrabalhando = false;
@@ -38,11 +45,18 @@ bool LeonardoisTrabalhando = false;
 bool LuigiisTrabalhando = false;
 bool PedroisTrabalhando = false;
 
+// variavel pra controlar a lampada
 bool lampada = false;
+
+// * VARIAVEIS PARA DA coletarHorra()
 String tempoLocal;
 String tempoTraduzido;
 
+// * CRIAÇÃO DE OBJETOS
+
 LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+Led LEDA(20);
 
 Adafruit_NeoPixel ledRGB(
     QUANTIDADE_LEDS,
@@ -53,6 +67,8 @@ Adafruit_NeoPixel ledRGB(
 Bounce DOWN = Bounce();
 Bounce UP = Bounce();
 Bounce SELECT = Bounce();
+
+// * PROTÓTIPOS DAS FUNÇÕES
 
 void tratarMensagemRecebida(const char *topico, const String &mensagem);
 void configurarLedRGB();
@@ -262,11 +278,7 @@ void FuncaoSELECT()
 
   String texto;
   serializeJson(doc, texto);
-  // TODO: INSERIR TOPICO Q VAI PUBLICAR
   publicarMensagem(TOPICO_COMANDO, texto.c_str());
-
-  debugInfo("Ponto enviado:");
-  debugInfo(texto);
 }
 
 void AtualizarLED()
@@ -405,9 +417,7 @@ String coletarHora()
 
   if (httpCode > 0)
   {
-    Serial.println("Codigo HTTP: ");
-    Serial.print(httpCode);
-
+    debugInfo("Codigo HTTP: " + String(httpCode));
     if (httpCode == HTTP_CODE_OK)
     {
       String resposta = http.getString();
@@ -431,14 +441,12 @@ String coletarHora()
     }
     else
     {
-      Serial.print("A API respondeu, mas com codigo de erro: "); // se for diferente de 200(Esse 200 foi obtido la no http.GET()) mostra isso
-      Serial.println(httpCode);
+      debugErro("A API respondeu, mas com codigo de erro: " + String(httpCode)); // se for diferente de 200(Esse 200 foi obtido la no http.GET()) mostra isso
     }
   }
   else // se httpCode <= 0
   {
-    Serial.print("Erro na requisiçao HTTP: ");
-    Serial.println(http.errorToString(httpCode));
+    debugErro("Erro na requisiçao HTTP: " + http.errorToString(httpCode));
   }
   http.end();
   return "";
