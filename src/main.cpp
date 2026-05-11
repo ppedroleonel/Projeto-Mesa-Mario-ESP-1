@@ -298,7 +298,7 @@ void AtualizarLED()
     }
     else if (!LaisisTrabalhando)
     {
-      alterarCorLedRGB(224, 29, 29);
+      alterarCorLedRGB(255, 0, 0);
     }
     break;
   case 1:
@@ -308,7 +308,7 @@ void AtualizarLED()
     }
     else if (!LeonardoisTrabalhando)
     {
-      alterarCorLedRGB(224, 29, 29);
+      alterarCorLedRGB(255, 0, 0);
     }
     break;
   case 2:
@@ -318,7 +318,7 @@ void AtualizarLED()
     }
     else if (!LuigiisTrabalhando)
     {
-      alterarCorLedRGB(224, 29, 29);
+      alterarCorLedRGB(255, 0, 0);
     }
     break;
   case 3:
@@ -328,7 +328,7 @@ void AtualizarLED()
     }
     else if (!PedroisTrabalhando)
     {
-      alterarCorLedRGB(224, 29, 29);
+      alterarCorLedRGB(255, 0, 0);
     }
     break;
   }
